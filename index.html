@@ -23,7 +23,7 @@
             --text-main: #141414;
             --text-sub: #555555;
             --border: #e0e0e0;
-            --primary: #007bff; /* Azul moderno para o Light Mode */
+            --primary: #007bff;
         }
 
         body {
@@ -85,7 +85,7 @@
             background-color: var(--bg-box);
             padding: 20px;
             border-radius: 8px;
-            min-height: 100px;
+            min-height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -97,12 +97,20 @@
             transition: all 0.3s ease;
         }
 
+        /* Layout dos botões funcionais */
+        .botoes-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         .btn-cinema {
             background-color: var(--primary);
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            padding: 12px 24px;
+            padding: 12px 20px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -116,8 +124,17 @@
 
         .btn-cinema:disabled {
             background-color: #555;
+            color: #888;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-reset {
+            background-color: #333;
+            color: #fff;
+        }
+        [data-theme="light"] .btn-reset {
+            background-color: #6c757d;
         }
     </style>
 </head>
@@ -128,29 +145,35 @@
 
     <div class="container-cinema">
         <h1>CineFatos 🍿</h1>
-        <p class="subtitulo" id="contador-info">Descubra os segredos dos seus filmes favoritos</p>
+        <p class="subtitulo" id="contador-info">Início da sessão</p>
         
         <!-- Área onde a mensagem será exibida -->
-        <p class="caixa-mensagem" id="mensagem-filme">Clique no botão abaixo para gerar uma curiosidade surpreendente sobre o cinema!</p>
+        <p class="caixa-mensagem" id="mensagem-filme">Clique em "Próxima" para começar a gerar curiosidades surpreendentes sobre o cinema!</p>
         
-        <!-- Botão que executa a função JavaScript -->
-        <button class="btn-cinema" id="botao-gerar">Gerar Curiosidade</button>
+        <!-- Controles de Navegação -->
+        <div class="botoes-container">
+            <button class="btn-cinema" id="btn-anterior" disabled>⬅️ Anterior</button>
+            <button class="btn-cinema" id="btn-proximo">Próxima ➡️</button>
+            <button class="btn-cinema btn-reset" id="btn-reset" disabled>Reiniciar ✖️</button>
+        </div>
     </div>
 
     <script>
         // 1. Elementos do HTML
-        const botaoGerar = document.getElementById("botao-gerar");
         const mensagemEl = document.getElementById("mensagem-filme");
         const contadorInfo = document.getElementById("contador-info");
         const botaoTema = document.getElementById("toggle-tema");
+        const btnAnterior = document.getElementById("btn-anterior");
+        const btnProximo = document.getElementById("btn-proximo");
+        const btnReset = document.getElementById("btn-reset");
 
-        // 2. Lista com 25 curiosidades do cinema
+        // 2. Lista com exatamente 20 curiosidades do cinema
         const fatosCinema = [
             "🎬 No filme 'Interstellar', as plantações de milho eram reais! O diretor Christopher Nolan plantou 500 acres de milho para depois vendê-los.",
             "🦖 O som dos dinossauros em 'Jurassic Park' foi feito usando gravações de tartarugas se acasalando, baleias e jacarés.",
             "👽 Em 'E.T.: O Extraterrestre', o rosto do alienígena foi inspirado nas feições do poeta Carl Sandburg, de Albert Einstein e de um cachorro pug.",
             "🍫 A famosa cachoeira de chocolate do filme 'A Fantástica Fábrica de Chocolate' (1971) era feita de água de verdade misturada com chocolate e creme.",
-            "🎭 O actor Heath Ledger viveu sozinho em um hotel por cerca de um mês para construir a mente e a risada icônica do Coringa em 'Batman'.",
+            "🎭 O ator Heath Ledger viveu sozinho em um hotel por cerca de um mês para construir a mente e a risada icônica do Coringa em 'Batman'.",
             "🕰️ O filme 'De Volta para o Futuro' originalmente teria uma geladeira como máquina do tempo em vez do famoso carro DeLorean.",
             "🤫 O filme 'Um Lugar Silencioso' tem apenas cerca de 25 linhas de diálogos falados em toda a sua duração.",
             "🚗 Em 'Velozes e Furiosos 7', mais de 230 carros reais foram destruídos durante as gravações das cenas de ação.",
@@ -161,51 +184,45 @@
             "🤡 Para o filme 'It: A Coisa', Bill Skarsgård assustou tanto as crianças figurantes no set que algumas choraram de verdade ao vê-lo caracterizado.",
             "🦾 Arnold Schwarzenegger recebeu cerca de 15 milhões de dólares para atuar em 'Exterminador do Futuro 2', onde falou apenas 700 palavras.",
             "🧥 O casaco clássico usado por Harrison Ford em 'Indiana Jones' foi comprado em uma loja comum de departamentos de Londres antes das filmagens.",
-            "🥬 O som de ossos quebrando ou pescoços torcendo em filmes de terror é frequentemente feito esmagando cabeças de aipo ou alface no estúdio.",
+            "🥬 O som de ossos quebrando em filmes de terror é frequentemente feito esmagando cabeças de aipo ou alface no estúdio.",
             "🧊 No filme 'Titanic', a água no tanque onde os atores gravavam as cenas pós-naufrágio estava morna para manter o elenco confortável.",
             "🪐 A icônica respiração de Darth Vader em 'Star Wars' foi criada colocando um regulador de mergulho dentro de um microfone de estúdio.",
             "🥊 Sylvester Stallone escreveu o roteiro original do primeiro filme 'Rocky: Um Lutador' em apenas três dias.",
-            "🐷 O filme 'Babe, o Porquinho Atrapalhado' precisou usar 48 porquinhos reais diferentes, porque eles cresciam rápido demais durante as gravações.",
-            "📱 Em 'Vingadores: Ultimato', o actor Tom Holland não recebeu o roteiro completo porque ele tinha a fama de deixar vazar spoilers sem querer.",
-            "🪵 As espadas lasers de 'Star Wars: A Ameaça Fantasma' quebravam tanto que a produção teve um custo extra enorme só repondo os cabos.",
-            "🎭 Jim Carrey recusou receber um salário fixo por 'Sim Senhor', aceitando receber apenas uma porcentagem dos lucros. Ele acabou faturando 35 milhões.",
-            "🐈 O gato que Marlon Brando segura em 'O Poderoso Chefão' era um animal de rua que entrou no estúdio e o diretor resolveu colocá-lo na cena.",
-            "🩸 No clássico 'Psicose' de Alfred Hitchcock, o sangue falso usado na famosa cena do chuveiro era, na verdade, calda de chocolate em calda."
+            "🐈 O gato que Marlon Brando segura em 'O Poderoso Chefão' era um animal de rua que entrou no estúdio e o diretor resolveu colocá-lo na cena."
         ];
 
-        // 3. Controle das curiosidades exibidas para evitar repetição
-        let indicesDisponiveis = [...Array(fatosCinema.length).keys()];
+        // 3. Estrutura de histórico para permitir voltar sem repetir e sem perder a ordem gerada
+        let ordemSorteada = [];
+        let posicaoAtual = -1;
+        let easterEggAtivo = false;
 
-        function mostrarCuriosidadeCinema() {
-            // Verifica se todas as mensagens já foram mostradas
-            if (indicesDisponiveis.length === 0) {
-                // Mensagem de Easter Egg 🎉
+        // Função para sortear uma ordem aleatória única dos 20 fatos (Embaralhamento)
+        function inicializarOrdem() {
+            ordemSorteada = [...Array(fatosCinema.length).keys()];
+            // Algoritmo para embaralhar a lista de índices de forma justa
+            for (let i = ordemSorteada.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [ordemSorteada[i], ordemSorteada[j]] = [ordemSorteada[j], ordemSorteada[i]];
+            }
+            posicaoAtual = -1;
+            easterEggAtivo = false;
+        }
+
+        // Inicializa o jogo pela primeira vez
+        inicializarOrdem();
+
+        // 4. Função principal que renderiza o estado da tela
+        function atualizarInterface() {
+            if (easterEggAtivo) {
                 mensagemEl.innerHTML = "✨ <b>EASTER EGG DESBLOQUEADO!</b> ✨<br><br>Parabéns, cinéfilo! Você consumiu todo o nosso estoque de conhecimento cinematográfico. Vá pegar mais pipoca, o filme acabou! 🎬🎬";
                 contadorInfo.textContent = "Fim da sessão!";
-                botaoGerar.disabled = true;
-                botaoGerar.textContent = "Sessão Encerrada";
+                btnAnterior.disabled = true;
+                btnProximo.disabled = true;
+                btnReset.disabled = false;
                 return;
             }
 
-            // Sorteia um índice da lista de posições ainda disponíveis
-            const posicaoSorteada = Math.floor(Math.random() * indicesDisponiveis.length);
-            const indiceFato = indicesDisponiveis[posicaoSorteada];
-
-            // Remove da lista para não repetir
-            indicesDisponiveis.splice(posicaoSorteada, 1);
-
-            // Atualiza o texto na tela
-            mensagemEl.textContent = fatosCinema[indiceFato];
-
-            // Atualiza o contador de progresso
-            const vistos = fatosCinema.length - indicesDisponiveis.length;
-            contadorInfo.textContent = `Curiosidade ${vistos} de ${fatosCinema.length}`;
-        }
-
-        // 4. Lógica de Alternância de Tema (Dark / Light Mode)
-        function alternarTema() {
-            const temaAtual = document.body.getAttribute("data-theme");
-            
-            if (temaAtual === "light") {
-document.body.removeAttribute("data-theme");botaoTema.textContent = "🌓 Modo Claro";} else {document.body.setAttribute("data-theme", "light");botaoTema.textContent = "🌓 Modo Escuro";}}
-   
+            if (posicaoAtual === -1) {
+                mensagemEl.textContent = "Clique em \"Próxima\" para começar a gerar curiosidades surpreendentes sobre o cinema!";
+                contadorInfo.textContent = "Início da sessão";
+                btnAnterior.disabled = true;
